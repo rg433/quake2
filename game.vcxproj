@@ -445,6 +445,7 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug Alpha|Win32'"> /QA21164 /MTd   /QA21164 /MTd </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release Alpha|Win32'"> /QA21164   /QA21164 </AdditionalOptions>
     </ClCompile>
+    <ClCompile Include="throwup.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="g_local.h" />
@@ -472,6 +473,7 @@
     <ClInclude Include="m_supertank.h" />
     <ClInclude Include="m_tank.h" />
     <ClInclude Include="q_shared.h" />
+    <ClInclude Include="throwup.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="game.def" />
