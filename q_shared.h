@@ -990,6 +990,14 @@ typedef enum
 #define STAT_CHASE				16
 #define STAT_SPECTATOR			17
 
+//rg433
+#define	STAT_TIMER2_ICON	18
+#define	STAT_TIMER2		19
+#define	STAT_TIMER3_ICON	20
+#define	STAT_TIMER3		21
+#define	STAT_TIMER4_ICON	22
+#define	STAT_TIMER4		23
+
 #define	MAX_STATS				32
 
 
