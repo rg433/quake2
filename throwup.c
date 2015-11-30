@@ -26,7 +26,7 @@ void ThrowUpNow(edict_t *self)
 
 	// BLOOD ! (copied from SpawnDamage function)
 	gi.WriteByte (svc_temp_entity);
-	gi.WriteByte (TE_BLOOD);
+	gi.WriteByte (TE_FLAME);
 	gi.WritePosition (mouth_pos);
 	gi.WriteDir (spew_vector);
 	gi.multicast (mouth_pos, MULTICAST_PVS);

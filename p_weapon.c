@@ -740,10 +740,12 @@ ROCKET
 void Weapon_RocketLauncher_Fire (edict_t *ent)
 {
 	vec3_t	offset, start;
-	vec3_t	forward, right;
+	vec3_t	forward1, right;
+	vec3_t	forward2, forward3, forward4, forward5, x1, x2, x3, x4, r1, r2, r3, r4;
 	int		damage;
 	float	damage_radius;
 	int		radius_damage;
+	vec3_t	mouth_pos;
 
 	damage = 100 + (int)(random() * 20.0);
 	radius_damage = 120;
@@ -754,14 +756,45 @@ void Weapon_RocketLauncher_Fire (edict_t *ent)
 		radius_damage *= 4;
 	}
 
-	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	VectorSet(x1, 0, -15, ent->viewheight-8);
+	VectorSet(x2, 0, -5, ent->viewheight-8);
+	VectorSet(x3, 0, 5, ent->viewheight-8);
+	VectorSet(x4, 0, 15, ent->viewheight-8);
+	VectorAdd(ent->client->v_angle, x1, r1);
+	VectorAdd(ent->client->v_angle, x2, r2);
+	VectorAdd(ent->client->v_angle, x3, r3);
+	VectorAdd(ent->client->v_angle, x4, r4);
 
-	VectorScale (forward, -2, ent->client->kick_origin);
+
+	AngleVectors (ent->client->v_angle, forward1, right, NULL);
+	AngleVectors (r1, forward2, right, NULL);
+	AngleVectors (r2, forward3, right, NULL);
+	AngleVectors (r3, forward4, right, NULL);
+	AngleVectors (r4, forward5, right, NULL);
+
+	VectorScale (forward1, 50, ent->client->kick_origin);
+	VectorScale (forward2, 50, ent->client->kick_origin);
+	VectorScale (forward3, 50, ent->client->kick_origin);
+	VectorScale (forward4, 50, ent->client->kick_origin);
+	VectorScale (forward5, 50, ent->client->kick_origin);
+
 	ent->client->kick_angles[0] = -1;
 
+
 	VectorSet(offset, 8, 8, ent->viewheight-8);
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
-	fire_rocket (ent, start, forward, damage, 650, damage_radius, radius_damage);
+
+
+
+	P_ProjectSource (ent->client, ent->s.origin, offset, forward1, right, start);
+
+
+
+	fire_rocket (ent, start, forward1, damage, 300, damage_radius, radius_damage);
+	fire_rocket (ent, start, forward2, damage, 300, damage_radius, radius_damage);
+	fire_rocket (ent, start, forward3, damage, 300, damage_radius, radius_damage);
+	fire_rocket (ent, start, forward4, damage, 300, damage_radius, radius_damage);
+	fire_rocket (ent, start, forward5, damage, 300, damage_radius, radius_damage);
+
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -773,8 +806,8 @@ void Weapon_RocketLauncher_Fire (edict_t *ent)
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
-		ent->client->pers.inventory[ent->client->ammo_index]--;
+	//if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
+		//ent->client->pers.inventory[ent->client->ammo_index]--;
 }
 
 void Weapon_RocketLauncher (edict_t *ent)
