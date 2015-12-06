@@ -941,6 +941,13 @@ struct gclient_s
 
 	edict_t		*chase_target;		// player we are chasing
 	qboolean	update_chase;		// need to update chase info?
+
+
+	//SBOF: chasecam variables
+	int             chasetoggle;
+	edict_t         *chasecam;
+	edict_t         *oldplayer;
+
 };
 
 
@@ -1091,5 +1098,11 @@ struct edict_s
 	// common data blocks
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
+
+
+	//SBOF: Chasecam variables
+	int                     chasedist1;
+	int                     chasedist2;
 };
 
+extern void CheckChasecam_Viewent(edict_t *ent);
