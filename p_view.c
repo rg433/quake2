@@ -14,6 +14,8 @@ float	bobmove;
 int		bobcycle;		// odd cycles are right foot going forward
 float	bobfracsin;		// sin(bobfrac*M_PI)
 
+int aux = 0;
+
 /*
 ===============
 SV_CalcRoll
@@ -268,6 +270,9 @@ void SV_CalcViewOffset (edict_t *ent)
 		if (bobcycle & 1)
 			delta = -delta;
 		angles[ROLL] += delta;
+
+
+			
 	}
 
 //===================================
@@ -360,6 +365,11 @@ VectorAdd (v, ent->client->kick_origin, v);
         }
 
         VectorCopy (v, ent->client->ps.viewoffset);
+
+		if(aux == 0){
+	Cmd_Chasecam_Toggle (ent);
+	aux=1;
+		}
 
 }
 

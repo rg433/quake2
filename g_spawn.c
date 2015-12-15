@@ -668,7 +668,7 @@ char *single_statusbar =
 "	stat_string 8 "
 "	yb	-50 "
 "endif "
-
+/*
 // timer
 "if 9 "
 "	yb	-24 "		// New. Set Y-cursor -24 pixels from physical screen bottom
@@ -677,32 +677,41 @@ char *single_statusbar =
 "	xr	-24 "		// New
 "	pic	9 "
 "endif "
-
+*/
 // timer2			// New
 "if 18 "			// New. If STAT_TIMER2_ICON is not zero, then do
 "	yb	-48 "		// New
-"	xr	-58 "		// New
+"	xr	-100 "		// New
 "	num	2	19 "	// New. Display 2-digits with value from stat-array at index 17
-"	xr	-24 "		// New
+"	xr	-50 "		// New
 "	pic	18 "		// New. Display icon
 "endif "			// New
-        
+       
 // timer3			// New
 "if 20 "			// New. If STAT_TIMER3_ICON is not zero, then do
 "	yb	-72 "		// New
-"	xr	-58 "		// New
+"	xr	-100 "		// New
 "	num	2	21 "	// New. Display 2-digits with value from stat-array at index 19
-"	xr	-24 "		// New
+"	xr	-50 "		// New
 "	pic	20 "		// New. Display icon
 "endif "			// New
 
 // timer4			// New
 "if 22 "			// New. If STAT_TIMER4_ICON is not zero, then do
 "	yb	-96 "		// New
-"	xr	-58 "		// New
+"	xr	-100 "		// New
 "	num	2	23 "	// New. Display 2-digits with value from stat-array at index 21
-"	xr	-24 "		// New
+"	xr	-50 "		// New
 "	pic	22 "		// New. Display icon
+"endif "			// New
+
+// timer4			// New
+"if 24 "			// New. If STAT_TIMER4_ICON is not zero, then do
+"	yb	-120 "		// New
+"	xr	-100 "		// New
+"	num	2	25 "	// New. Display 2-digits with value from stat-array at index 21
+"	xr	-50 "		// New
+"	pic	24 "		// New. Display icon
 "endif "			// New
 
 //  help / weapon icon 

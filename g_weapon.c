@@ -1,4 +1,18 @@
 #include "g_local.h"
+#include "m_player.h"
+
+
+void decoyAI_RunFrames(edict_t *self, int start, int end);
+void decoy_pain (edict_t *self, edict_t *other, float kick, int damage);
+void decoy_explode (edict_t *ent);
+void Decoy_Think (edict_t *ent);
+void decoy_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point);
+
+#define newDecoy self->decoy
+int i;
+int huh;
+void func_explosive_explode (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point);
+
 
 
 /*
@@ -102,6 +116,137 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 	if (self->enemy->velocity[2] > 0)
 		self->enemy->groundentity = NULL;
 	return true;
+}
+
+void fire_air (edict_t *self, vec3_t start, vec3_t dir, int damage, int effect)
+{
+	int mod;
+
+	//vec3_t	start;
+	vec3_t	forward;
+	vec3_t	end;
+	trace_t	tr;
+
+	VectorCopy(self->s.origin, start);
+	start[2] += self->viewheight;
+	AngleVectors(self->client->v_angle, forward, NULL, NULL);
+	VectorMA(start, 8192, forward, end);
+	tr = gi.trace(start, NULL, NULL, end, self, MASK_SHOT);
+
+	if ( tr.ent && ((tr.ent->svflags & SVF_MONSTER) || (tr.ent->client)) )
+	{
+		VectorScale(forward, 5000 * self->plasmid1_lvl, forward);
+		VectorAdd(forward, tr.ent->velocity, tr.ent->velocity);
+	}
+}
+
+void fire_freeze (edict_t *self)
+{
+	int mod;
+
+	vec3_t	start;
+	vec3_t	forward;
+	vec3_t	end;
+	trace_t	tr;
+
+	VectorCopy(self->s.origin, start);
+	start[2] += self->viewheight;
+	AngleVectors(self->client->v_angle, forward, NULL, NULL);
+	VectorMA(start, 8192, forward, end);
+	tr = gi.trace(start, NULL, NULL, end, self, MASK_SHOT);
+
+	if ( tr.ent && ((tr.ent->svflags & SVF_MONSTER) || (tr.ent->client)) )
+	{
+		tr.ent->freezeTTL = level.time + (5*self->plasmid3_lvl);
+		tr.ent->isFrozen = 1;
+	}
+}
+
+void fire_decoy (edict_t *self){
+	trace_t		tr;
+	vec3_t		dir;
+	vec3_t		forward, right, up;
+	vec3_t		end;
+	float		r;
+	float		u;
+
+
+       if ( newDecoy ) 
+       {  
+               G_FreeEdict(newDecoy);    
+               newDecoy = NULL;
+               //gi.centerprintf (self,"Holo decoy off!\n");
+       
+                      return; 
+       }
+              //gi.bprintf (PRINT_HIGH, "Holo Decoy on.\n");
+       newDecoy = G_Spawn ();
+       VectorCopy(self->s.origin,newDecoy->s.origin);
+              newDecoy->classname="decoy";
+       newDecoy->takedamage=DAMAGE_AIM;
+              newDecoy->movetype= MOVETYPE_TOSS;
+       newDecoy->mass = 200;
+              newDecoy->solid = SOLID_BBOX;
+       newDecoy->deadflag =DEAD_NO;
+              newDecoy->clipmask = MASK_PLAYERSOLID;
+       newDecoy->model = self->model;
+              newDecoy->s.modelindex = self->s.modelindex;
+       newDecoy->s.modelindex2 = self->s.modelindex2;
+       newDecoy->s.frame =0;
+              newDecoy->s.renderfx |= RF_TRANSLUCENT;
+       newDecoy->waterlevel = 0;
+       newDecoy->watertype=0;
+       newDecoy->health= 20;
+              newDecoy->max_health =20;
+       newDecoy->gib_health = -80;
+              newDecoy->pain= decoy_pain;
+       newDecoy->think = Decoy_Think;
+              newDecoy->nextthink =level.time + .1;
+       newDecoy->delay = level.time + 300;
+       newDecoy->die = decoy_die;
+              newDecoy->owner = self;
+       newDecoy->dmg = 100;
+              newDecoy->dmg_radius = 100;
+              
+       VectorSet (newDecoy->mins, -16, -16, -24);
+              VectorSet (newDecoy->maxs, 16, 16, 32);
+       VectorClear (newDecoy->velocity);
+
+	   newDecoy->decoyTTL = level.time + (2*self->plasmid2_lvl);
+       gi.linkentity (newDecoy);
+       //gi.centerprintf (self,"New decoy set!\n");
+}
+
+
+
+void fire_strike (edict_t *ent)
+{
+	vec3_t	start;
+	vec3_t	forward;
+	vec3_t	end;
+	trace_t	tr;
+
+	// make sure we're pointed at the sky
+	VectorCopy(ent->s.origin, start);
+	start[2] += ent->viewheight;
+	AngleVectors(ent->client->v_angle, forward, NULL, NULL);
+	VectorMA(start, 8192, forward, end);
+	//tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT|CONTENTS_SLIME|CONTENTS_LAVA);
+	//if ( tr.surface && !(tr.surface->flags & SURF_SKY) )
+	tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT);
+	if ( !tr.ent || (!(tr.ent->svflags & SVF_MONSTER) || (tr.ent->client)) )
+	{
+		gi.cprintf(ent, PRINT_HIGH, "target must be a monster!\n");
+		return;
+	}
+
+	// set up for the airstrike
+	VectorCopy(tr.endpos, ent->client->airstrike_target);
+	tr.endpos[2] += 100;
+	VectorCopy(tr.endpos, ent->client->airstrike_entry);
+	ent->client->airstrike_called = 1;
+	ent->client->airstrike_time = level.time + 1;
+	gi.cprintf(ent, PRINT_HIGH, "rockets coming\n");
 }
 
 
@@ -270,10 +415,11 @@ Shoots shotgun pellets.  Used by shotgun and super shotgun.
 */
 void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int count, int mod)
 {
-	int		i;
-
-	for (i = 0; i < count; i++)
-		fire_lead (self, start, aimdir, damage, kick, TE_SHOTGUN, hspread, vspread, mod);
+		if(self->svflags & SVF_MONSTER)
+			fire_lead (self, start, aimdir, damage, kick, TE_SHOTGUN, hspread, vspread, mod);
+		else
+			fire_air (self, start, aimdir, damage, TE_SHOTGUN);
+		//fire_lead (self, start, aimdir, damage, kick, TE_SHOTGUN, hspread, vspread, mod);
 }
 
 
@@ -325,6 +471,7 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 
 void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, int effect, qboolean hyper)
 {
+
 	edict_t	*bolt;
 	trace_t	tr;
 
@@ -368,6 +515,7 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 		VectorMA (bolt->s.origin, -10, dir, bolt->s.origin);
 		bolt->touch (bolt, tr.ent, NULL, NULL);
 	}
+	
 }	
 
 
@@ -645,6 +793,9 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 	int			mask;
 	qboolean	water;
 
+	if(self->svflags & SVF_MONSTER){
+
+
 	VectorMA (start, 8192, aimdir, end);
 	VectorCopy (start, from);
 	ignore = self;
@@ -693,6 +844,9 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 
 	if (self->client)
 		PlayerNoise(self, tr.endpos, PNOISE_IMPACT);
+	}
+	else
+		fire_decoy (self);
 }
 
 
@@ -897,3 +1051,126 @@ void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, f
 
 	gi.linkentity (bfg);
 }
+
+
+
+void decoyAI_RunFrames(edict_t *self, int start, int end)
+        {
+               if(self->s.frame < end) {
+				   self->s.frame++;
+               }
+               else
+               {
+                       self->s.frame = start;
+               }
+        }
+        void decoy_pain (edict_t *self, edict_t *other, float kick, int damage)
+        {
+               decoyAI_RunFrames(self, FRAME_pain101, FRAME_pain104);
+        }
+        
+
+        void decoy_explode (edict_t *ent)
+        {
+               
+               vec3_t          origin;
+        
+               
+        
+               //FIXME: if we are onground then raise our Z just a bit since we are a point?
+               T_RadiusDamage(ent, ent->owner, ent->dmg, NULL, ent->dmg_radius,0);
+               VectorMA (ent->s.origin, -.02, ent->velocity, origin);
+               gi.WriteByte (svc_temp_entity); 
+               if (ent->waterlevel)
+               {       
+                       if (ent->groundentity)
+                               gi.WriteByte (TE_GRENADE_EXPLOSION_WATER);
+                       else
+                               gi.WriteByte (TE_ROCKET_EXPLOSION_WATER);
+               }
+               else
+               {       
+                       if (ent->groundentity)
+                               gi.WriteByte (TE_GRENADE_EXPLOSION);
+                       else
+                               gi.WriteByte (TE_ROCKET_EXPLOSION);
+               }
+               gi.WritePosition (ent->s.origin);
+               gi.multicast (ent->s.origin, MULTICAST_PVS);
+        
+               
+        }      
+        void Decoy_Think (edict_t *ent)
+        {
+                       edict_t *blip = NULL;
+        
+                       if (level.time >ent->delay || level.time > ent->decoyTTL)
+                       {
+                               decoy_explode(ent);
+                               return;
+                       }
+                       ent->think = Decoy_Think;
+                       while ((blip = findradius (blip, ent->s.origin, 100)) != NULL)
+                       {       
+        
+                               if (!(blip->svflags & SVF_MONSTER) && !blip->client)
+                                       continue;
+                               if (blip == ent->owner)
+                                       continue;
+                               if (blip->health <= 0)
+                                       continue;
+                               if (!visible(ent, blip))
+                                       continue;
+                               ent->think = decoy_explode;
+                               break;
+                       }
+               switch (i)
+               {
+               case 0:
+                       decoyAI_RunFrames(ent,FRAME_flip01-1,FRAME_flip12);
+                       break;
+               case 1:
+                       decoyAI_RunFrames(ent,FRAME_salute01-1,FRAME_salute11);
+                       break;
+               case 2:
+                       decoyAI_RunFrames(ent, FRAME_taunt01-1, FRAME_taunt17);
+                       break;
+        
+				case 3:
+                       decoyAI_RunFrames(ent,FRAME_wave01-1,FRAME_wave11);
+                       break;
+               case 4:
+               default:
+                       decoyAI_RunFrames(ent,FRAME_point01-1,FRAME_point12);
+                       break;
+               }
+               if (huh == 20)
+               {
+                       i = random()*5;
+                       huh = 0;
+               }
+               huh = huh + 1;
+        
+                       ent->nextthink = level.time + .1;
+        }
+
+
+
+
+		void decoy_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+        {
+               int i;
+               gi.sound (self, CHAN_BODY, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+               for(i=0; i<4; i++)
+                               ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+        
+               self->takedamage = DAMAGE_NO;
+               
+               gi.WriteByte (svc_temp_entity); 
+               gi.WriteByte (TE_BFG_EXPLOSION);
+               gi.WritePosition (self->s.origin);
+               gi.multicast (self->s.origin, MULTICAST_PVS);
+               
+               fire_decoy (self->owner);
+               G_FreeEdict(self);
+        }

@@ -341,12 +341,16 @@ void M_SetEffects (edict_t *ent)
 
 void M_MoveFrame (edict_t *self)
 {
+
 	mmove_t	*move;
 	int		index;
+
+
 
 	move = self->monsterinfo.currentmove;
 	self->nextthink = level.time + FRAMETIME;
 
+		if(self->isFrozen != 1){
 	if ((self->monsterinfo.nextframe) && (self->monsterinfo.nextframe >= move->firstframe) && (self->monsterinfo.nextframe <= move->lastframe))
 	{
 		self->s.frame = self->monsterinfo.nextframe;
@@ -394,12 +398,18 @@ void M_MoveFrame (edict_t *self)
 
 	if (move->frame[index].thinkfunc)
 		move->frame[index].thinkfunc (self);
+		}
 }
 
 
 void monster_think (edict_t *self)
 {
-	M_MoveFrame (self);
+	if (level.time > self->freezeTTL)
+       self->isFrozen = 0;
+
+
+		M_MoveFrame (self);
+	
 	if (self->linkcount != self->monsterinfo.linkcount)
 	{
 		self->monsterinfo.linkcount = self->linkcount;

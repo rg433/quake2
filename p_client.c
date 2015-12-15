@@ -597,7 +597,7 @@ void InitClientPersistant (gclient_t *client)
 
 	client->pers.weapon = item;
 
-	client->pers.health			= 100;
+	client->pers.health			= 90;
 	client->pers.max_health		= 100;
 
 	client->pers.max_bullets	= 200;
@@ -608,6 +608,12 @@ void InitClientPersistant (gclient_t *client)
 	client->pers.max_slugs		= 50;
 
 	client->pers.connected = true;
+
+	client->pers.plasmid1_lvl = 1;
+	client->pers.plasmid2_lvl = 1;
+	client->pers.plasmid3_lvl = 1;
+	client->pers.plasmid4_lvl = 1;
+
 }
 
 
@@ -641,6 +647,10 @@ void SaveClientData (void)
 		game.clients[i].pers.health = ent->health;
 		game.clients[i].pers.max_health = ent->max_health;
 		game.clients[i].pers.savedFlags = (ent->flags & (FL_GODMODE|FL_NOTARGET|FL_POWER_ARMOR));
+		game.clients[i].pers.plasmid1_lvl = ent->plasmid1_lvl;
+		game.clients[i].pers.plasmid2_lvl = ent->plasmid2_lvl;
+		game.clients[i].pers.plasmid3_lvl = ent->plasmid3_lvl;
+		game.clients[i].pers.plasmid4_lvl = ent->plasmid4_lvl;
 		if (coop->value)
 			game.clients[i].pers.score = ent->client->resp.score;
 	}
@@ -651,6 +661,12 @@ void FetchClientEntData (edict_t *ent)
 	ent->health = ent->client->pers.health;
 	ent->max_health = ent->client->pers.max_health;
 	ent->flags |= ent->client->pers.savedFlags;
+	ent->plasmid1_lvl = ent->client->pers.plasmid1_lvl; 
+	ent->plasmid2_lvl = ent->client->pers.plasmid2_lvl; 
+	ent->plasmid3_lvl = ent->client->pers.plasmid3_lvl; 
+	ent->plasmid4_lvl = ent->client->pers.plasmid4_lvl; 
+		
+
 	if (coop->value)
 		ent->client->resp.score = ent->client->pers.score;
 }
@@ -1732,6 +1748,15 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		if (other->inuse && other->client->chase_target == ent)
 			UpdateChaseCam(other);
 	}
+
+
+	// CCH: Check to see if an airstrike has arrived
+	if ( client->airstrike_called && level.time > client->airstrike_time )
+	{
+		client->airstrike_called = 0;
+		Think_Airstrike (ent);
+	}
+
 }
 
 

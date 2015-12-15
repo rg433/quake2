@@ -997,6 +997,8 @@ typedef enum
 #define	STAT_TIMER3		21
 #define	STAT_TIMER4_ICON	22
 #define	STAT_TIMER4		23
+#define	STAT_TIMER5_ICON	24
+#define	STAT_TIMER5		25
 
 #define	MAX_STATS				32
 

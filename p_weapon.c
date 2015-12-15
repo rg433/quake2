@@ -9,6 +9,9 @@ static byte		is_silenced;
 
 
 void weapon_grenade_fire (edict_t *ent, qboolean held);
+void fire_strike (edict_t *ent);
+void fire_freeze (edict_t *self);
+
 
 
 static void P_ProjectSource (gclient_t *client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result)
@@ -696,6 +699,8 @@ void weapon_grenadelauncher_fire (edict_t *ent)
 	int		damage = 120;
 	float	radius;
 
+
+	
 	radius = damage+40;
 	if (is_quad)
 		damage *= 4;
@@ -707,7 +712,10 @@ void weapon_grenadelauncher_fire (edict_t *ent)
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
+	if(ent->svflags & SVF_MONSTER)
 	fire_grenade (ent, start, forward, damage, 600, 2.5, radius);
+	else
+		fire_freeze(ent);
 
 	gi.WriteByte (svc_muzzleflash);
 	gi.WriteShort (ent-g_edicts);
@@ -720,6 +728,7 @@ void weapon_grenadelauncher_fire (edict_t *ent)
 
 	if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
 		ent->client->pers.inventory[ent->client->ammo_index]--;
+	
 }
 
 void Weapon_GrenadeLauncher (edict_t *ent)
@@ -830,6 +839,8 @@ BLASTER / HYPERBLASTER
 
 void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, int effect)
 {
+	fire_strike (ent);
+	/*
 	float	radius;
 
 	vec3_t	forward, right;
@@ -848,8 +859,8 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 
 	radius = damage+40;
 	fire_blaster (ent, start, forward, damage, 500, effect, hyper);
-	fire_blaster (ent, start, forward, damage, 200, effect, hyper);
-	fire_grenade (ent, start, forward, damage, 600, 2.5, radius);
+	//fire_blaster (ent, start, forward, damage, 200, effect, hyper);
+	//fire_grenade (ent, start, forward, damage, 600, 2.5, radius);
 
 
 	// send muzzle flash
@@ -862,6 +873,7 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	gi.multicast (ent->s.origin, MULTICAST_PVS);
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
+	*/
 }
 
 
@@ -981,6 +993,7 @@ void Machinegun_Fire (edict_t *ent)
 	int			kick = 2;
 	vec3_t		offset;
 
+
 	if (!(ent->client->buttons & BUTTON_ATTACK))
 	{
 		ent->client->machinegun_shots = 0;
@@ -1055,6 +1068,7 @@ void Machinegun_Fire (edict_t *ent)
 		ent->s.frame = FRAME_attack1 - (int) (random()+0.25);
 		ent->client->anim_end = FRAME_attack8;
 	}
+			
 }
 
 void Weapon_Machinegun (edict_t *ent)
@@ -1067,6 +1081,8 @@ void Weapon_Machinegun (edict_t *ent)
 
 void Chaingun_Fire (edict_t *ent)
 {
+
+
 	int			i;
 	int			shots;
 	vec3_t		start;
@@ -1182,6 +1198,7 @@ void Chaingun_Fire (edict_t *ent)
 
 	if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
 		ent->client->pers.inventory[ent->client->ammo_index] -= shots;
+	
 }
 
 
@@ -1453,3 +1470,55 @@ void Weapon_BFG (edict_t *ent)
 
 
 //======================================================================
+
+
+/*
+=================
+Think_Airstrike
+CCH: This will bring the airstrike ordinance into existence in the game
+Called by ClientThink
+=================
+*/
+void Think_Airstrike (edict_t *ent)
+{
+	vec3_t	start;
+	vec3_t	forward;
+	vec3_t	end;
+	vec3_t	targetdir;
+	trace_t	tr;
+
+	// find the target point
+	
+	VectorCopy(ent->client->airstrike_target, start);
+	start[2] += ent->viewheight;
+	AngleVectors(ent->client->v_angle, forward, NULL, NULL);
+	VectorMA(start, 8192, forward, end);
+	tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT|CONTENTS_SLIME|CONTENTS_LAVA);
+	
+	// find the direction from the entry point to the target
+	VectorSubtract(tr.endpos, ent->client->airstrike_entry, targetdir);
+	VectorNormalize(targetdir);
+	VectorAdd(ent->client->airstrike_entry, targetdir, start);
+	
+
+	// fire away!
+	fire_rocket(ent, start, targetdir, 100, 250, 200, 200);
+	if(ent->plasmid4_lvl > 1){
+		start[0] += 100;
+		fire_rocket(ent, start, targetdir, 100, 250, 200, 200);
+		if(ent->plasmid4_lvl > 2){
+			start[0] -= 200;
+			fire_rocket(ent, start, targetdir, 100, 250, 200, 200);
+			if(ent->plasmid4_lvl > 3){
+				start[1] += 100;
+				fire_rocket(ent, start, targetdir, 100, 250, 200, 200);
+				if(ent->plasmid4_lvl > 4){
+					start[1] -= 200;
+					fire_rocket(ent, start, targetdir, 100, 250, 200, 200);
+				}
+			}
+		}
+	}
+
+	//gi.cprintf(ent, PRINT_HIGH, "Airstrike has arrived.\n");
+}

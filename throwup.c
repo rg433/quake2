@@ -26,7 +26,7 @@ void ThrowUpNow(edict_t *self)
 
 	// BLOOD ! (copied from SpawnDamage function)
 	gi.WriteByte (svc_temp_entity);
-	gi.WriteByte (TE_BLOOD);
+	gi.WriteByte (TE_GREENBLOOD);
 	gi.WritePosition (mouth_pos);
 	gi.WriteDir (spew_vector);
 	gi.multicast (mouth_pos, MULTICAST_PVS);
@@ -64,7 +64,19 @@ void ThrowUpNow(edict_t *self)
 	else
 		gi.sound (self, CHAN_BODY, SexedSoundIndex(self, "pain100_2"), 1, ATTN_NORM, 0);	
 		*/
-	// also do a spewing sound
+// also do a spewing sound
 	gi.sound (self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
+	// cough up some gibs.
+	for (i = 0; i<3; i++) {
+		ThrowVomit (self, mouth_pos, forward, right, self->velocity);
+	}
+
+	// every now and again, cough up MEGA vomit
+	if (random() < 0.1)
+	{
+		for (i = 0; i<10; i++) {
+			ThrowVomit (self, mouth_pos, forward, right, self->velocity);
+		}
+	}
 }

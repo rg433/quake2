@@ -165,6 +165,9 @@
     <ClCompile Include="s_cam.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="decoy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="g_local.h">

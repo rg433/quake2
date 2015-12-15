@@ -578,6 +578,11 @@ extern	field_t fields[];
 extern	gitem_t	itemlist[];
 
 
+// CCH: new prototype for function called when airstrike arrives
+void Think_Airstrike (edict_t *ent);
+
+
+
 //
 // g_cmds.c
 //
@@ -844,6 +849,11 @@ typedef struct
 	int			helpchanged;
 
 	qboolean	spectator;			// client is a spectator
+
+	int plasmid1_lvl;
+	int plasmid2_lvl;
+	int plasmid3_lvl;
+	int plasmid4_lvl;
 } client_persistant_t;
 
 // client data that stays across deathmatch respawns
@@ -947,6 +957,18 @@ struct gclient_s
 	int             chasetoggle;
 	edict_t         *chasecam;
 	edict_t         *oldplayer;
+
+	int plasmid1_lvl;
+	int plasmid2_lvl;
+	int plasmid3_lvl;
+	int plasmid4_lvl;
+
+
+	// CCH: new variables for airstrikes
+	int		airstrike_called;
+	vec3_t		airstrike_entry;
+	vec3_t		airstrike_target;
+	float		airstrike_time;
 
 };
 
@@ -1103,6 +1125,20 @@ struct edict_s
 	//SBOF: Chasecam variables
 	int                     chasedist1;
 	int                     chasedist2;
+
+        
+        edict_t *decoy; //JR  Decoy Edict
+
+	float decoyTTL;
+
+
+	int plasmid1_lvl;
+	int plasmid2_lvl;
+	int plasmid3_lvl;
+	int plasmid4_lvl;
+
+	int isFrozen;
+	float freezeTTL;
 };
 
 extern void CheckChasecam_Viewent(edict_t *ent);

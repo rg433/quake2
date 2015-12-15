@@ -427,50 +427,53 @@ void G_SetStats (edict_t *ent)
 	//
 	// timers
 	//
-	if (ent->client->quad_framenum > level.framenum)
-	{
-		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex ("p_quad");
-		ent->client->ps.stats[STAT_TIMER] = (ent->client->quad_framenum - level.framenum)/10;
-	}
-	else							// New
-	{							// New
-		ent->client->ps.stats[STAT_TIMER_ICON] = 0;	// New
-		ent->client->ps.stats[STAT_TIMER] = 0;		// New
-	}							// New
+	//if (ent->client->quad_framenum > level.framenum)
+	//{
+	//	ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex ("p_quad");
+	//	ent->client->ps.stats[STAT_TIMER] = 100;
+	//}
+	//else							// New
+	//{							// New
+		//ent->client->ps.stats[STAT_TIMER_ICON] = 0;	// New
+		//ent->client->ps.stats[STAT_TIMER] = 0;		// New
+	//}							// New
 	
-	if (ent->client->invincible_framenum > level.framenum)
-	{
+	//if (ent->client->invincible_framenum > level.framenum)
+	//{
 		ent->client->ps.stats[STAT_TIMER2_ICON] = gi.imageindex ("p_invulnerability");
-		ent->client->ps.stats[STAT_TIMER2] = (ent->client->invincible_framenum - level.framenum)/10;
-	}
-	else							// New
-	{							// New
-		ent->client->ps.stats[STAT_TIMER2_ICON] = 0;	// New
-		ent->client->ps.stats[STAT_TIMER2] = 0;		// New
-	}							// New
+		ent->client->ps.stats[STAT_TIMER2] = ent->plasmid1_lvl;
+		//gi.bprintf (PRINT_MEDIUM, "%d\n", ent->plasmid1_lvl);
+	//}
+	//else							// New
+	//{							// New
+	//	ent->client->ps.stats[STAT_TIMER2_ICON] = 0;	// New
+	//	ent->client->ps.stats[STAT_TIMER2] = 0;		// New
+	//}							// New
 	
-	if (ent->client->enviro_framenum > level.framenum)
-	{
+	//if (ent->client->enviro_framenum > level.framenum)
+	//{
 		ent->client->ps.stats[STAT_TIMER3_ICON] = gi.imageindex ("p_envirosuit");
-		ent->client->ps.stats[STAT_TIMER3] = (ent->client->enviro_framenum - level.framenum)/10;
-	}
-	else							// New
-	{							// New
-		ent->client->ps.stats[STAT_TIMER3_ICON] = 0;	// New
-		ent->client->ps.stats[STAT_TIMER3] = 0;		// New
-	}							// New
+		ent->client->ps.stats[STAT_TIMER3] = ent->plasmid2_lvl;
+	//}
+	//else							// New
+	//{							// New
+	//	ent->client->ps.stats[STAT_TIMER3_ICON] = 0;	// New
+	//	ent->client->ps.stats[STAT_TIMER3] = 0;		// New
+	//}							// New
 	
-	if (ent->client->breather_framenum > level.framenum)
-	{
+	//if (ent->client->breather_framenum > level.framenum)
+	//{
 		ent->client->ps.stats[STAT_TIMER4_ICON] = gi.imageindex ("p_rebreather");
-		ent->client->ps.stats[STAT_TIMER4] = (ent->client->breather_framenum - level.framenum)/10;
-	}
-	else							// New
-	{							// New
-		ent->client->ps.stats[STAT_TIMER4_ICON] = 0;	// New
-		ent->client->ps.stats[STAT_TIMER4] = 0;		// New
-	}							// New
+		ent->client->ps.stats[STAT_TIMER4] = ent->plasmid3_lvl;
+	//}
+	//else							// New
+	//{							// New
+	//	ent->client->ps.stats[STAT_TIMER4_ICON] = 0;	// New
+	//	ent->client->ps.stats[STAT_TIMER4] = 0;		// New
+	//}							// New
 
+		ent->client->ps.stats[STAT_TIMER5_ICON] = gi.imageindex ("p_quad");
+		ent->client->ps.stats[STAT_TIMER5] = ent->plasmid4_lvl;
 	//
 	// selected item
 	//
